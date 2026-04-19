@@ -20,7 +20,7 @@ LOG_FILE="disk-monitor.log"
 LOG_PATH="$LOG_DIR/$LOG_FILE"
 
 #Threshold Value
-THRESHOLD=60
+THRESHOLD=80
 
 
 #=========================================
@@ -37,7 +37,7 @@ rm -f "$ALERT_FLAG"
 
 #======================================================
 #Disk Check
-df -h | grep -vE '^Filesystem|tmpfs|udev' | while read -r LINE; do 
+while read -r LINE; do 
     USAGE=$(echo "$LINE" | awk '{print $5}' |cut -d'%' -f1)
     PARTITION=$(echo "$LINE" | awk '{print $6}')
     if [ "$USAGE" -ge "$THRESHOLD" ]; then
@@ -48,7 +48,7 @@ df -h | grep -vE '^Filesystem|tmpfs|udev' | while read -r LINE; do
         echo "[$DATE] OK: $PARTITION is at ${USAGE}%">> "$LOG_PATH"
     fi
 
-done
+done < <(df -h | grep -vE '^Filesystem|tmpfs|udev')
 
 if [ -f "$ALERT_FLAG" ]; then
     rm -f "$ALERT_FLAG"
