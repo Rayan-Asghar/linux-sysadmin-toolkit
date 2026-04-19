@@ -48,7 +48,7 @@ while read -r LINE; do
         echo "[$DATE] OK: $PARTITION is at ${USAGE}%">> "$LOG_PATH"
     fi
 
-done < <(df -h | grep -vE '^Filesystem|tmpfs|udev')
+done < <(df -h | grep -vE '^Filesystem|tmpfs|udev|efivarfs')
 
 if [ -f "$ALERT_FLAG" ]; then
     rm -f "$ALERT_FLAG"
