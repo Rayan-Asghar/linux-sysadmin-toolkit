@@ -1,0 +1,16 @@
+# Logs - never commit log files
+logs/
+*.log
+
+# Environment files - never commit secrets
+.env
+*.env
+
+# OS garbage
+.DS_Store
+Thumbs.db
+
+# Backup files created by editors
+*~
+*.swp
+*.swo
