@@ -1,0 +1,166 @@
+# Linux Sysadmin Toolkit
+
+A collection of production-grade Bash scripts for Linux server administration.
+Built for real server environments — not tutorial exercises.
+
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Shell](https://img.shields.io/badge/shell-bash-green)
+![Platform](https://img.shields.io/badge/platform-Ubuntu%20Linux-orange)
+
+---
+
+## What This Is
+
+Four scripts that cover the core responsibilities of a Linux sysadmin:
+monitoring, user management, backup automation, and security auditing.
+Every script logs its output, handles errors explicitly, and exits with
+the correct code so they work inside automation pipelines.
+
+---
+
+## Architecture
+
+\`\`\`
+linux-sysadmin-toolkit/
+├── scripts/
+│   ├── disk-monitor.sh       # Monitors disk usage across all partitions
+│   ├── user-manager.sh       # Creates, deletes, and lists system users
+│   ├── backup.sh             # Compressed timestamped backups with retention
+│   └── harden.sh             # Security hardening audit with pass/fail report
+├── logs/                     # Local log output (gitignored)
+├── .gitignore
+├── LICENSE
+└── README.md
+\`\`\`
+
+---
+
+## Prerequisites
+
+- Ubuntu Linux 22.04 or later
+- Bash 5.0+
+- Run all scripts as root via `sudo`
+- Required packages: `ufw`, `fail2ban`, `tar`, `awk`, `curl`
+
+Install prerequisites:
+
+\`\`\`bash
+sudo apt update
+sudo apt install ufw fail2ban
+\`\`\`
+
+---
+
+## Scripts
+
+### 1. disk-monitor.sh
+Monitors disk usage across all real mounted partitions. Logs results
+with timestamps. Alerts to terminal when usage exceeds the threshold.
+Rotates log file when it exceeds 1MB.
+
+**Usage:**
+\`\`\`bash
+sudo ./scripts/disk-monitor.sh
+\`\`\`
+
+**Schedule with cron — runs every hour:**
+\`\`\`bash
+0 * * * * /full/path/to/scripts/disk-monitor.sh
+\`\`\`
+
+**Log location:** `/var/log/sysadmin-toolkit/disk-monitor.log`
+
+---
+
+### 2. user-manager.sh
+Creates, deletes, and lists system users. Validates input before acting.
+Logs every action with a timestamp and the operator who ran the command.
+
+**Usage:**
+\`\`\`bash
+sudo ./scripts/user-manager.sh create <username>
+sudo ./scripts/user-manager.sh delete <username>
+sudo ./scripts/user-manager.sh list
+\`\`\`
+
+**Log location:** `/var/log/sysadmin-toolkit/user-manager.log`
+
+---
+
+### 3. backup.sh
+Creates a compressed timestamped archive of a specified directory.
+Retains the last 5 backups and removes older ones automatically.
+Blocked from backing up sensitive system paths.
+
+**Usage:**
+\`\`\`bash
+sudo ./scripts/backup.sh /path/to/directory
+\`\`\`
+
+**Example:**
+\`\`\`bash
+sudo ./scripts/backup.sh /var/www/myapp
+\`\`\`
+
+**Backup location:** `/var/backups/sysadmin/`
+**Log location:** `/var/log/sysadmin-toolkit/backup.log`
+
+---
+
+### 4. harden.sh
+Audits server security configuration and produces a pass/fail report.
+Reports only — makes no changes to the system.
+
+**Usage:**
+\`\`\`bash
+sudo ./scripts/harden.sh
+\`\`\`
+
+**What it checks:**
+- SSH root login is disabled
+- SSH password authentication is disabled
+- UFW firewall is active
+- fail2ban is installed and running
+- No accounts with empty passwords
+- Root account is locked from direct login
+
+**Example output:**
+\`\`\`
+==========================================
+Linux Security Hardening Audit
+==========================================
+
+ [PASS] SSH root login is disabled
+ [PASS] SSH password authentication is disabled
+ [PASS] UFW firewall is active
+ [PASS] fail2ban is installed and running
+ [PASS] No accounts with empty passwords
+ [PASS] Root account is locked from direct login
+
+==========================================
+  AUDIT COMPLETE
+==========================================
+Passed: 6
+Failed: 0
+Total: 6
+\`\`\`
+
+**Log location:** `/var/log/sysadmin-toolkit/harden.log`
+
+---
+
+## Log Structure
+
+All scripts write to `/var/log/sysadmin-toolkit/` with this format:
+
+\`\`\`
+[2026-04-26 12:30:18] OK:      Backup of /home/rayan/Documents created
+[2026-04-26 12:30:18] INFO:    Retention Cleanup ran -- Keeping last 5 backups
+[2026-04-26 12:30:18] WARNING: Disk at 85% on /var/log -- above threshold
+\`\`\`
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
